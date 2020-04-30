@@ -1,0 +1,6 @@
+{
+ "bucket": "bucket",
+ "accesskey": "key",
+ "secretkey": "key",
+ "region": "US_EAST_2"
+}
