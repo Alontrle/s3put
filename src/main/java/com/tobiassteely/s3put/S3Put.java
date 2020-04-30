@@ -26,14 +26,18 @@ public class S3Put {
         Config settings = configManager.getConfig("settings.json");
         settings.loadDefault("accesskey", "key");
         settings.loadDefault("secretkey", "key");
+        settings.loadDefault("endpoint", "default");
+        settings.loadDefault("folder", "none");
         settings.loadDefault("bucket", "bucket");
         settings.loadDefault("region", "US_EAST_2");
         settings.save();
 
         String accessKey = settings.getString("accesskey");
         String secretKey = settings.getString("secretkey");
+        String folder = settings.getString("folder");
         String bucket = settings.getString("bucket");
         String regionName = settings.getString("region");
+        String endpoint = settings.getString("endpoint");
 
         if(accessKey.equalsIgnoreCase("key")) {
             Log.sendMessage(2, "Please set your access key.");
@@ -66,13 +70,23 @@ public class S3Put {
                     .withRegion(region)
                     .build();
 
+
+
+            if(!endpoint.equalsIgnoreCase("default")) {
+                s3client.setEndpoint(endpoint);
+            }
+
             File file = new File(fileName);
             if(file.exists()) {
                 if(file.isDirectory()) {
                     try {
                         Stream<Path> paths = Files.walk(file.toPath());
                         paths.forEach((Path path) -> {
-                            s3client.putObject(bucket, fileName, path.toFile());
+                            if (folder.equalsIgnoreCase("none")) {
+                                s3client.putObject(bucket, fileName, path.toFile());
+                            } else {
+                                s3client.putObject(bucket, folder + System.getProperty("file.separator") + fileName, path.toFile());
+                            }
                             Log.sendMessage(0, "Uploading file " + path.toString() + " from folder " + file.toString());
                         });
                     } catch (IOException ex) {
@@ -80,7 +94,11 @@ public class S3Put {
                         ex.printStackTrace();
                     }
                 } else {
-                    s3client.putObject(bucket, fileName, new File(fileName));
+                    if (folder.equalsIgnoreCase("none")) {
+                        s3client.putObject(bucket, fileName, new File(fileName));
+                    } else {
+                        s3client.putObject(bucket, folder + System.getProperty("file.separator") + fileName, new File(fileName));
+                    }
                     Log.sendMessage(0, "Uploading file " + file.toString());
                 }
             }

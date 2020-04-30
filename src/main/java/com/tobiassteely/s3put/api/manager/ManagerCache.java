@@ -1,6 +1,5 @@
 package com.tobiassteely.s3put.api.manager;
 
-import java.util.Collection;
 import java.util.HashMap;
 
 public class ManagerCache {
@@ -25,13 +24,5 @@ public class ManagerCache {
 
     public void removeObject(String key) {
         cache.remove(key);
-    }
-
-    public Collection<Object> getCache() {
-        return cache.values();
-    }
-
-    public int size() {
-        return cache.size();
     }
 }

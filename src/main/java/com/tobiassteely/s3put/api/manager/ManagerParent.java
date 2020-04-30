@@ -12,7 +12,7 @@ public class ManagerParent {
         reload();
     }
 
-    public Vector<ManagerObject> getVector() {
+    public Vector<ManagerObject> getList() {
         return list;
     }
 
