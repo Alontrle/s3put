@@ -4,6 +4,7 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
+import com.amazonaws.regions.RegionImpl;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -29,7 +30,7 @@ public class S3Put {
         settings.loadDefault("endpoint", "default");
         settings.loadDefault("folder", "none");
         settings.loadDefault("bucket", "bucket");
-        settings.loadDefault("region", "US_EAST_2");
+        settings.loadDefault("region", "default");
         settings.save();
 
         String accessKey = settings.getString("accesskey");
@@ -59,18 +60,20 @@ public class S3Put {
                     secretKey
             );
 
-            Regions region = Regions.fromName(regionName);
-            if(region == null) {
-                region = Regions.DEFAULT_REGION;
+            AmazonS3 s3client;
+            if(regionName.equalsIgnoreCase("default")) {
+                s3client = AmazonS3ClientBuilder
+                        .standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                        .withRegion(Regions.DEFAULT_REGION)
+                        .build();
+            } else {
+                s3client = AmazonS3ClientBuilder
+                        .standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                        .withRegion(regionName)
+                        .build();
             }
-
-            AmazonS3 s3client = AmazonS3ClientBuilder
-                    .standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withRegion(region)
-                    .build();
-
-
 
             if(!endpoint.equalsIgnoreCase("default")) {
                 s3client.setEndpoint(endpoint);
